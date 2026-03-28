@@ -5,20 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>var 迴圈 + onclick 閉包示範</title>
     <style>
-      body {
+      .demo-page {
         font-family: system-ui, sans-serif;
         padding: 1.5rem;
         max-width: 40rem;
+        margin: 0;
       }
-      #container_var,
-      #container_let {
+
+      .demo-page h1 {
+        margin-top: 0;
+      }
+
+      .demo-lead {
+        margin: 0.5rem 0 0;
+      }
+
+      .tile-row {
         display: flex;
         gap: 0.5rem;
         flex-wrap: wrap;
         margin-top: 1rem;
       }
-      #container_var > div,
-      #container_let > div {
+
+      .tile {
         width: 2.5rem;
         height: 2.5rem;
         background: #334155;
@@ -30,39 +39,89 @@
         cursor: pointer;
         user-select: none;
       }
-      #container_var > div:hover,
-      #container_let > div:hover {
+
+      .tile:hover {
         background: #475569;
+      }
+
+      .demo-block {
+        margin-top: 1.5rem;
+      }
+
+      .demo-block__title {
+        margin: 0 0 0.5rem;
+        font-weight: 600;
+      }
+
+      .text-output {
+        margin: 0;
+        padding: 0.75rem 1rem;
+        background: #f1f5f9;
+        color: #0f172a;
+        border-radius: 6px;
+        font-family: ui-monospace, monospace;
+        font-size: 0.95rem;
       }
     </style>
   </head>
-  <body>
+  <body class="demo-page">
     <h1>var 閉包示範</h1>
-    <p>點每一個方塊，觀察 alert 裡的編號（通常全部都是 #5）。</p>
-    <div id="container_var"></div>
-    <div id="container_let"></div>
+    <p class="demo-lead">
+      點每一個方塊，觀察 alert 裡的編號（通常全部都是 #5）。
+    </p>
+    <div id="container_var" class="tile-row" aria-label="var 迴圈示範"></div>
+
+    <p class="demo-lead">點每一個方塊，觀察 alert 裡的編號（應為 #0～#4）。</p>
+    <div id="container_let" class="tile-row" aria-label="let 迴圈示範"></div>
+
+    <section class="demo-block">
+      <p class="demo-block__title">string template literal 的用法</p>
+      <p id="output_template_literal" class="text-output"></p>
+    </section>
+
+    <section class="demo-block">
+      <p class="demo-block__title">logCompliment 的用法</p>
+      <p id="output_logCompliment" class="text-output"></p>
+    </section>
+
     <script>
       var div_var,
         container_var = document.getElementById("container_var");
 
       for (var i = 0; i < 5; i++) {
         div_var = document.createElement("div");
+        div_var.className = "tile";
         div_var.textContent = i + 1;
         div_var.onclick = function () {
           alert("This is box #" + i);
         };
         container_var.appendChild(div_var);
       }
+
       var div_let,
         container_let = document.getElementById("container_let");
       for (let i = 0; i < 5; i++) {
         div_let = document.createElement("div");
+        div_let.className = "tile";
         div_let.textContent = i + 1;
         div_let.onclick = function () {
           alert("This is box #" + i);
         };
         container_let.appendChild(div_let);
       }
+
+      var A = "你好";
+      var B = "我好";
+      var C = "大家好";
+      document.getElementById("output_template_literal").textContent =
+        `${A} 123 ${B} ### ${C}`;
+
+      var name = "John";
+      const logCompliment = (name) => {
+        return `${name} 你很棒！`;
+      };
+      document.getElementById("output_logCompliment").textContent =
+        logCompliment(name);
     </script>
   </body>
 </html>
