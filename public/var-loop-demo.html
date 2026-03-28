@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>var 迴圈 + onclick 閉包示範</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        padding: 1.5rem;
+        max-width: 40rem;
+      }
+      #container_var,
+      #container_let {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+      #container_var > div,
+      #container_let > div {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: #334155;
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        cursor: pointer;
+        user-select: none;
+      }
+      #container_var > div:hover,
+      #container_let > div:hover {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>var 閉包示範</h1>
+    <p>點每一個方塊，觀察 alert 裡的編號（通常全部都是 #5）。</p>
+    <div id="container_var"></div>
+    <div id="container_let"></div>
+    <script>
+      var div_var,
+        container_var = document.getElementById("container_var");
+
+      for (var i = 0; i < 5; i++) {
+        div_var = document.createElement("div");
+        div_var.textContent = i + 1;
+        div_var.onclick = function () {
+          alert("This is box #" + i);
+        };
+        container_var.appendChild(div_var);
+      }
+      var div_let,
+        container_let = document.getElementById("container_let");
+      for (let i = 0; i < 5; i++) {
+        div_let = document.createElement("div");
+        div_let.textContent = i + 1;
+        div_let.onclick = function () {
+          alert("This is box #" + i);
+        };
+        container_let.appendChild(div_let);
+      }
+    </script>
+  </body>
+</html>

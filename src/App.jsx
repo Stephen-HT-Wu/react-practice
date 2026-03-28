@@ -1,68 +1,120 @@
-import { useState } from 'react'
-import './App.css'
+import { useEffect, useRef } from "react";
+import "./App.css";
 
 function App() {
-  const [letMessage, setLetMessage] = useState("")
-  const [constMessage, setConstMessage] = useState("")
+  const varDemoRef = useRef(null);
+  const letDemoRef = useRef(null);
 
-  const testLet = () => {
-    // 💡 宣告為 let：允許修改
-    let score = 100;
-    try {
-      score = 200; // 重新賦值
-      setLetMessage(`✅ 成功！變數 score 原本是 100，現在被修改為 ${score}。`);
-    } catch (error) {
-      setLetMessage(`❌ 發生錯誤：${error.message}`);
+  useEffect(() => {
+    const container = varDemoRef.current;
+    if (!container) return;
+    container.replaceChildren();
+    let div;
+    for (var i = 0; i < 5; i++) {
+      div = document.createElement("button");
+      div.type = "button";
+      div.className = "demo-tile";
+      div.textContent = String(i + 1);
+      div.onclick = function () {
+        alert("This is box #" + i);
+      };
+      container.appendChild(div);
     }
-  }
+  }, []);
 
-  const testConst = () => {
-    // 💡 宣告為 const：不允許修改
-    const MAX_LIVES = 3;
-    try {
-      // 嘗試重新賦值，這裡會觸發 TypeError
-      MAX_LIVES = 4;
-      setConstMessage(`✅ 成功修改為 ${MAX_LIVES}`);
-    } catch (error) {
-      // 捕捉到底層錯誤並顯示在畫面上
-      setConstMessage(`❌ 發生錯誤：${error.message} (無法重新賦值給 const)`);
+  useEffect(() => {
+    const container = letDemoRef.current;
+    if (!container) return;
+    container.replaceChildren();
+    for (let i = 0; i < 5; i++) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "demo-tile";
+      btn.textContent = String(i + 1);
+      btn.onclick = function () {
+        alert("This is box #" + i);
+      };
+      container.appendChild(btn);
     }
-  }
+  }, []);
 
   return (
     <main className="container">
       <header className="header">
-        <h1><code>let</code> vs <code>const</code></h1>
-        <p>點擊下方按鈕，觀察 JavaScript 中變數與常數受到修改時的反應！</p>
+        <h1>let · const · 閉包</h1>
+        <p>
+          比對 <code>var</code> 與 <code>let</code> 在迴圈裡的繫結差異（沿用經典
+          DOM + <code>onclick</code> 寫法示範）。
+        </p>
       </header>
 
       <div className="layout">
-        <section className="card let-card">
-          <h2><code>let</code> 變數</h2>
-          <p>宣告後可以被<strong>重新賦值</strong>的變數。</p>
-          <pre className="code-block">
+        <section className="card let-card" aria-labelledby="var-title">
+          <h2 id="var-title">var 與閉包</h2>
+          <p>
+            <code>var i</code> 只有一個；點任何方塊時，handler
+            看到的是迴圈結束後的 <code>i</code>。
+          </p>
+          <div className="code-block">
             <code>
-              {`let score = 100;\nscore = 200; // ✅ 這是允許的`}
+              for (var i = 0; i &lt; 5; i++) {"{"}
+              <br />
+              {"  "}div.onclick = function () {"{"}
+              <br />
+              {"    "}alert(&quot;This is box #&quot; + i)
+              <br />
+              {"  "}
+              {"}"}
+              <br />
+              {"}"}
             </code>
-          </pre>
-          <button className="action-btn" onClick={testLet}>測試修改 Let</button>
-          {letMessage && <div className="message success">{letMessage}</div>}
+          </div>
+          <p className="message error">
+            五個按鈕點下去通常都會是 <strong>This is box #5</strong>
+            （迴圈跑完後的 <code>i</code>）。
+          </p>
+          <div
+            ref={varDemoRef}
+            className="demo-tiles"
+            role="group"
+            aria-label="var 示範按鈕"
+          />
         </section>
 
-        <section className="card const-card">
-          <h2><code>const</code> 常數</h2>
-          <p>宣告後一旦給定值，就<strong>不可重新賦值</strong>。</p>
-          <pre className="code-block">
+        <section className="card const-card" aria-labelledby="let-title">
+          <h2 id="let-title">let 與區塊作用域</h2>
+          <p>
+            每次迭代 <code>let i</code> 都是新的繫結，因此點擊會對應到該次的{" "}
+            <code>i</code>。
+          </p>
+          <div className="code-block">
             <code>
-              {`const MAX_LIVES = 3;\nMAX_LIVES = 4; // ❌ 發生錯誤`}
+              for (let i = 0; i &lt; 5; i++) {"{"}
+              <br />
+              {"  "}div.onclick = function () {"{"}
+              <br />
+              {"    "}alert(&quot;This is box #&quot; + i)
+              <br />
+              {"  "}
+              {"}"}
+              <br />
+              {"}"}
             </code>
-          </pre>
-          <button className="action-btn" onClick={testConst}>測試修改 Const</button>
-          {constMessage && <div className="message error">{constMessage}</div>}
+          </div>
+          <p className="message success">
+            五個按鈕應分別為 <strong>#0～#4</strong>（與按鈕上的 1～5
+            對應同一輪迭代）。
+          </p>
+          <div
+            ref={letDemoRef}
+            className="demo-tiles"
+            role="group"
+            aria-label="let 示範按鈕"
+          />
         </section>
       </div>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
