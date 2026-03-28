@@ -115,13 +115,14 @@
       var C = "大家好";
       document.getElementById("output_template_literal").textContent =
         `${A} 123 ${B} ### ${C}`;
-
-      var name = "John";
       const logCompliment = (name) => {
+        if (!name) {
+          name = "Guest";
+        }
         return `${name} 你很棒！`;
       };
       document.getElementById("output_logCompliment").textContent =
-        logCompliment(name);
+        logCompliment();
     </script>
   </body>
 </html>
