@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>async 點擊 + loading 實驗</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 36rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        margin: 1rem 0;
+      }
+
+      button {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        background: #f8fafc;
+        font: inherit;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .spinner-wrap {
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+        color: #0369a1;
+        font-size: 0.9rem;
+      }
+
+      .spinner-wrap.is-visible {
+        display: flex;
+      }
+
+      .spinner {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 3px solid #bae6fd;
+        border-top-color: #0369a1;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      #log {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 8px;
+        font-family: ui-monospace, monospace;
+        font-size: 0.8rem;
+        white-space: pre-wrap;
+        max-height: 14rem;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>async 點擊 + 轉圈：和「同步卡住」對照</h1>
+    <p>
+      開 DevTools Performance 或只看下方 log 的時間戳。重點：<strong
+        >await 之後主執行緒可以空出來</strong
+      >，轉圈有機會先畫出來；同步長迴圈會把畫面卡住。
+    </p>
+
+    <div class="row">
+      <button type="button" id="btn-good">
+        好的寫法：先 loading，再 await 2 秒
+      </button>
+    </div>
+    <div class="row">
+      <button type="button" id="btn-bad">
+        對照：先同步卡住 2 秒，才顯示 loading
+      </button>
+    </div>
+
+    <div class="spinner-wrap" id="spinner" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <span>處理中…</span>
+    </div>
+
+    <div id="log" role="log" aria-label="事件時間軸"></div>
+
+    <script>
+      const logEl = document.getElementById("log");
+      const spinner = document.getElementById("spinner");
+      const btnGood = document.getElementById("btn-good");
+      const btnBad = document.getElementById("btn-bad");
+
+      const t0 = performance.now();
+      function stamp() {
+        return `${((performance.now() - t0) / 1000).toFixed(2)}s`;
+      }
+
+      function logLine(msg) {
+        logEl.textContent += `[${stamp()}] ${msg}\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function setLoading(on) {
+        spinner.classList.toggle("is-visible", on);
+        btnGood.disabled = on;
+        btnBad.disabled = on;
+      }
+
+      function sleep(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+
+      /** 模擬「很耗時但可以 await」的事（網路請求同理） */
+      async function doSlowThing() {
+        await sleep(2000);
+        return "完成";
+      }
+
+      btnGood.addEventListener("click", async () => {
+        logLine("click：進入 handler（async）");
+        setLoading(true);
+        logLine("setLoading(true) 已執行（同步）");
+        try {
+          logLine("即將 await doSlowThing()（2 秒）— 此時主執行緒可處理 paint");
+          const r = await doSlowThing();
+          logLine(`doSlowThing 回傳：${r}`);
+        } catch (e) {
+          logLine(`錯誤：${e}`);
+        } finally {
+          setLoading(false);
+          logLine("finally：setLoading(false)");
+        }
+      });
+
+      btnBad.addEventListener("click", () => {
+        logLine("click：對照組 — 先同步忙 2 秒（轉圈要忙完才排得上）");
+        const start = performance.now();
+        while (performance.now() - start < 2000) {
+          /* 故意占用主執行緒 */
+        }
+        logLine("同步忙完，現在才 setLoading(true)");
+        setLoading(true);
+        sleep(300).then(() => {
+          setLoading(false);
+          logLine("300ms 後關掉 loading（僅示範）");
+        });
+      });
+    </script>
+  </body>
+</html>
