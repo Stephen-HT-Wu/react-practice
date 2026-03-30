@@ -163,6 +163,18 @@ code {
   background: #e11d48;
 }
 
+.state-card .action-btn {
+  width: auto;
+  min-width: 7rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  box-shadow: none;
+}
+
+.state-card .action-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .message {
   margin-top: 1.5rem;
   padding: 1rem;

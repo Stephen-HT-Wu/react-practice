@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import "./App.css";
+import { StateIsolationDemo } from "./StateIsolationDemo.jsx";
 
 function App() {
   const varDemoRef = useRef(null);
@@ -113,6 +114,15 @@ function App() {
           />
         </section>
       </div>
+
+      <section
+        className="card state-card"
+        aria-labelledby="state-title"
+        style={{ marginTop: "2rem" }}
+      >
+        <h2 id="state-title">React state 是每個 component 實例獨立的</h2>
+        <StateIsolationDemo />
+      </section>
     </main>
   );
 }
